@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Audio Capture</string>
+    
+    <!-- MainActivity -->
+    <string name="server_ip_hint">IP del servidor (ej: 192.168.1.100)</string>
+    <string name="server_port_hint">Puerto</string>
+    <string name="capture_microphone">Capturar Micrófono</string>
+    <string name="capture_internal_audio">Capturar Audio Interno</string>
+    <string name="internal_audio_not_supported">Audio interno no disponible (requiere Android 10+)</string>
+    <string name="connect_and_record">CONECTAR Y GRABAR</string>
+    <string name="stop">DETENER</string>
+    <string name="status">Estado:</string>
+    <string name="disconnected">Desconectado</string>
+    <string name="connecting">Conectando…</string>
+    <string name="connected">Conectado</string>
+    <string name="recording">Grabando</string>
+    <string name="error">Error</string>
+    
+    <!-- Permisos -->
+    <string name="permission_record_audio_required">Se requiere permiso de GRABACIÓN DE AUDIO</string>
+    <string name="permission_notification_required">Se requiere permiso de NOTIFICACIONES</string>
+    <string name="permission_denied">Permiso denegado</string>
+    
+    <!-- Errores -->
+    <string name="error_invalid_ip">IP o puerto inválido</string>
+    <string name="error_connection_failed">Error de conexión</string>
+    <string name="error_audio_capture_failed">Error al capturar audio</string>
+    <string name="error_select_at_least_one">Selecciona al menos una fuente de audio</string>
+    
+    <!-- Notificación -->
+    <string name="notification_channel_name">Captura de Audio</string>
+    <string name="notification_channel_description">Servicio de captura de audio en segundo plano</string>
+    <string name="notification_title">Audio Capture</string>
+    <string name="notification_text">Capturando y transmitiendo audio…</string>
+</resources>
