@@ -52,6 +52,9 @@ class AudioReceiver:
         try:
             self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            # Nota de seguridad: Binding a 0.0.0.0 permite conexiones desde cualquier interfaz
+            # (WiFi, Ethernet, USB tethering). Asegúrate de que el firewall esté configurado
+            # correctamente para limitar el acceso solo a redes confiables.
             self.server_socket.bind(('0.0.0.0', self.port))
             self.server_socket.listen(1)
             self.is_running = True
@@ -86,14 +89,14 @@ class AudioReceiver:
         if self.client_socket:
             try:
                 self.client_socket.close()
-            except:
+            except Exception:
                 pass
             self.client_socket = None
             
         if self.server_socket:
             try:
                 self.server_socket.close()
-            except:
+            except Exception:
                 pass
             self.server_socket = None
         

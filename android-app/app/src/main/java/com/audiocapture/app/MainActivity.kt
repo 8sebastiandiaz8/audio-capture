@@ -223,8 +223,7 @@ class MainActivity : AppCompatActivity() {
         etServerIp.isEnabled = false
         etServerPort.isEnabled = false
         switchMicrophone.isEnabled = false
-        switchInternalAudio.isEnabled = !switchInternalAudio.isEnabled || 
-                                       Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+        switchInternalAudio.isEnabled = false
 
         Toast.makeText(this, "Iniciando captura de audio...", Toast.LENGTH_SHORT).show()
     }

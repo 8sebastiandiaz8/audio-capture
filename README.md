@@ -402,6 +402,34 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## 🔒 Consideraciones de Seguridad
+
+### Servidor TCP
+- El servidor de Windows escucha en todas las interfaces de red (0.0.0.0) para permitir conexiones desde WiFi, Ethernet o USB tethering
+- **Recomendación**: Configura el firewall de Windows para permitir conexiones solo en redes confiables (red doméstica/trabajo)
+- El servidor no implementa autenticación por diseño, ya que está pensado para uso personal en redes privadas
+
+### Conexión Segura
+- **WiFi**: Asegúrate de estar en una red WiFi privada y segura
+- **USB**: El método más seguro, ya que la conexión es física y directa
+- **Puerto**: El puerto 5000 debe estar bloqueado en el firewall para redes públicas
+
+### Datos de Audio
+- El audio se transmite sin cifrar por TCP
+- Para uso en redes públicas, considera usar una VPN
+- No se guardan credenciales ni datos sensibles
+
+### Permisos Android
+- La app solicita solo los permisos estrictamente necesarios
+- Revisa los permisos en la configuración de Android
+- El servicio en primer plano muestra una notificación visible
+
+### Mejores Prácticas
+1. Usa el método USB cuando sea posible para mayor seguridad
+2. Desactiva el servidor cuando no lo uses
+3. Mantén el software actualizado
+4. No uses en redes WiFi públicas sin protección adicional
+
 ## 📄 Licencia
 
 Este proyecto es de código abierto y está disponible bajo la Licencia MIT.
