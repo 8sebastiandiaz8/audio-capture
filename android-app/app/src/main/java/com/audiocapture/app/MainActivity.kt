@@ -1,8 +1,10 @@
 package com.audiocapture.app
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private companion object {
         const val REQUEST_RECORD_AUDIO_PERMISSION = 200
         const val REQUEST_NOTIFICATION_PERMISSION = 201
+        const val REQUEST_MEDIA_PROJECTION = 202
     }
 
     // Referencias a las vistas
@@ -39,6 +42,12 @@ class MainActivity : AppCompatActivity() {
 
     // Estado de la aplicación
     private var isRecording = false
+    
+    // Configuración pendiente al esperar permiso de MediaProjection
+    private var pendingServerIp: String = ""
+    private var pendingServerPort: Int = 5000
+    private var pendingCaptureMicrophone: Boolean = true
+    private var pendingCaptureInternalAudio: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -192,7 +201,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Verificar permisos
+        // Verificar permisos de micrófono
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
             != PackageManager.PERMISSION_GRANTED
         ) {
@@ -200,12 +209,77 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Iniciar el servicio de captura
+        // Si se solicita captura de audio interno (Android 10+), pedir permiso de MediaProjection
+        if (switchInternalAudio.isChecked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            pendingServerIp = serverIp
+            pendingServerPort = serverPort
+            pendingCaptureMicrophone = switchMicrophone.isChecked
+            pendingCaptureInternalAudio = true
+
+            val manager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+            @Suppress("DEPRECATION")
+            startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
+        } else {
+            // Lanzar el servicio directamente sin MediaProjection
+            launchAudioCaptureService(serverIp, serverPort, switchMicrophone.isChecked, false, -1, null)
+        }
+    }
+
+    /**
+     * Maneja el resultado del diálogo de permiso de MediaProjection
+     */
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_MEDIA_PROJECTION) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                // Permiso concedido: iniciar el servicio con MediaProjection
+                launchAudioCaptureService(
+                    pendingServerIp,
+                    pendingServerPort,
+                    pendingCaptureMicrophone,
+                    pendingCaptureInternalAudio,
+                    resultCode,
+                    data
+                )
+            } else {
+                // Permiso denegado: capturar solo micrófono si estaba seleccionado
+                Toast.makeText(this, getString(R.string.error_media_projection_denied), Toast.LENGTH_LONG).show()
+                if (pendingCaptureMicrophone) {
+                    launchAudioCaptureService(
+                        pendingServerIp,
+                        pendingServerPort,
+                        pendingCaptureMicrophone,
+                        false,
+                        -1,
+                        null
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Lanza el servicio de captura de audio con la configuración indicada
+     */
+    private fun launchAudioCaptureService(
+        serverIp: String,
+        serverPort: Int,
+        captureMicrophone: Boolean,
+        captureInternalAudio: Boolean,
+        mediaProjectionResultCode: Int,
+        mediaProjectionData: Intent?
+    ) {
         val intent = Intent(this, AudioCaptureService::class.java).apply {
             putExtra("server_ip", serverIp)
             putExtra("server_port", serverPort)
-            putExtra("capture_microphone", switchMicrophone.isChecked)
-            putExtra("capture_internal_audio", switchInternalAudio.isChecked)
+            putExtra("capture_microphone", captureMicrophone)
+            putExtra("capture_internal_audio", captureInternalAudio)
+            if (mediaProjectionData != null) {
+                putExtra("media_projection_result_code", mediaProjectionResultCode)
+                putExtra("media_projection_data", mediaProjectionData)
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -218,7 +292,7 @@ class MainActivity : AppCompatActivity() {
         isRecording = true
         btnConnect.text = getString(R.string.stop)
         tvStatus.text = getString(R.string.connecting)
-        
+
         // Deshabilitar edición de configuración durante la grabación
         etServerIp.isEnabled = false
         etServerPort.isEnabled = false

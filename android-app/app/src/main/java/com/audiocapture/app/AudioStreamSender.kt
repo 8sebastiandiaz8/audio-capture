@@ -60,11 +60,12 @@ class AudioStreamSender(
     }
 
     /**
-     * Envía datos de audio al servidor
+     * Envía datos de audio al servidor (sincronizado para uso seguro desde múltiples hilos)
      * @param data Buffer con los datos de audio
      * @param length Cantidad de bytes a enviar
      * @return true si el envío fue exitoso, false en caso contrario
      */
+    @Synchronized
     fun sendAudioData(data: ByteArray, length: Int): Boolean {
         if (!isConnected.get() || outputStream == null) {
             Log.w(TAG, "No hay conexión activa para enviar datos")

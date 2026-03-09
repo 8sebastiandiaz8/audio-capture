@@ -27,6 +27,7 @@
     <string name="error_connection_failed">Error de conexión</string>
     <string name="error_audio_capture_failed">Error al capturar audio</string>
     <string name="error_select_at_least_one">Selecciona al menos una fuente de audio</string>
+    <string name="error_media_projection_denied">Permiso de captura de audio interno denegado. Solo se capturará el micrófono.</string>
     
     <!-- Notificación -->
     <string name="notification_channel_name">Captura de Audio</string>
